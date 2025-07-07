@@ -2,143 +2,125 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8" />
-  <title>Arabisch-Deutsch Sätze</title>
+  <title>Arabisch‑Deutsch Sätze – Kategorien & Unterkategorien</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <style>
     :root {
-      --bg-color: #f1f1f1;
-      --text-color: #222;
-      --card-bg: #fff;
-      --hover-bg: #f9f9f9;
+      --bg: #f1f1f1; --text: #222; --card: #fff; --hover: #f9f9f9;
+      --dark-bg: #1e1e1e; --dark-text: #e0e0e0; --dark-card: #2a2a2a; --dark-hover: #333;
     }
-
-    body.dark {
-      --bg-color: #1e1e1e;
-      --text-color: #e0e0e0;
-      --card-bg: #2a2a2a;
-      --hover-bg: #333;
-    }
-
     body {
       margin: 0;
       font-family: 'Segoe UI', sans-serif;
-      background-color: var(--bg-color);
-      color: var(--text-color);
+      background: var(--bg);
+      color: var(--text);
     }
-
+    body.dark {
+      background: var(--dark-bg);
+      color: var(--dark-text);
+    }
     .container {
       display: flex;
       min-height: 100vh;
     }
-
     .sidebar {
       width: 250px;
-      background-color: #2f2f35;
+      background: #2f2f35;
       color: white;
       padding: 20px;
       box-sizing: border-box;
-      transition: transform 0.3s ease;
+      transition: transform .3s ease;
     }
-
     .sidebar.hidden {
       transform: translateX(-100%);
     }
-
-    .category {
-      margin: 10px 0;
-      cursor: pointer;
-      padding: 10px;
-      border-radius: 5px;
-      transition: background 0.3s;
-    }
-
-    .category:hover {
-      background-color: #444;
-    }
-
-    .main {
-      flex: 1;
-      padding: 20px;
-    }
-
-    .menu-btn {
-      background: none;
-      border: none;
-      font-size: 1.7em;
-      cursor: pointer;
-      padding: 10px 15px;
-      color: inherit;
-    }
-
     .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--card);
       display: flex;
-      align-items: center;
       justify-content: space-between;
+      align-items: center;
       padding: 10px 20px;
-      background-color: var(--card-bg);
       box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     }
-
-    .top-left {
-      display: flex;
-      align-items: center;
-    }
-
-    .toggle-mode {
-      font-size: 1.5em;
-      cursor: pointer;
+    .menu-btn, .toggle-mode {
       background: none;
       border: none;
-      margin-left: 10px;
+      cursor: pointer;
+      font-size: 1.7em;
+      color: inherit;
     }
-
+    .main {
+      flex: 1;
+      overflow-y: auto;
+    }
+    #mainTitle {
+      font-size: 1.2em;
+      font-weight: bold;
+    }
+    .categories h3 {
+      cursor: pointer;
+      margin: 10px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .subcategories {
+      margin: 0 0 8px 15px;
+      display: none;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .subcategory {
+      padding: 6px 10px;
+      background-color: rgba(255,255,255,0.05);
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .subcategory:hover {
+      background-color: rgba(255,255,255,0.15);
+    }
     .sentence {
-      background: var(--card-bg);
-      margin-bottom: 20px;
-      margin-top: 10px;
-      padding: 15px 20px;
+      background: var(--card);
+      margin: 10px 20px;
+      padding: 15px;
       border-radius: 10px;
       box-shadow: 0 4px 8px rgba(0,0,0,0.05);
-      transition: transform 0.2s;
       cursor: pointer;
+      transition: transform .2s;
     }
-
+    body.dark .sentence {
+      background: var(--dark-card);
+    }
     .sentence:hover {
       transform: scale(1.01);
-      background-color: var(--hover-bg);
+      background: var(--hover);
     }
-
+    body.dark .sentence:hover {
+      background: var(--dark-hover);
+    }
     .arabic {
       font-weight: bold;
       direction: rtl;
       text-align: right;
       font-size: 1.3em;
-      color: var(--text-color);
     }
-
     .translation {
       margin-top: 12px;
       display: none;
       flex-direction: column;
-      gap: 10px;
+      gap: 8px;
     }
-
     .translation-line {
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
-
-    .hochdeutsch {
-      color: #43a047;
-      font-size: 1em;
-    }
-
-    .umgangssprache {
-      color: #ab47bc;
-      font-size: 1em;
-    }
-
+    .hochdeutsch { color: #43a047; }
+    .umgangssprache { color: #ab47bc; }
     .speak-btn {
       border: none;
       border-radius: 50%;
@@ -146,160 +128,180 @@
       height: 35px;
       font-size: 1.1em;
       cursor: pointer;
-      transition: background-color 0.3s;
+      transition: opacity .3s;
     }
-
-    .speak-hoch {
-      background-color: #a5d6a7;
+    .speak-hoch { background: #a5d6a7; }
+    .speak-umgang { background: #e1bee7; }
+    .speak-btn:hover { opacity: 0.9; }
+    #helpBox {
+      display: none;
+      position: fixed;
+      top: 20%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: white;
+      color: black;
+      padding: 20px;
+      border-radius: 12px;
+      max-width: 90%;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      z-index: 9999;
+      font-size: 1em;
+      line-height: 1.5;
     }
-
-    .speak-umgang {
-      background-color: #e1bee7;
-    }
-
-    .speak-btn:hover {
-      opacity: 0.9;
-    }
-
     @media (max-width: 768px) {
-      .container {
-        flex-direction: column;
-      }
-
-      .sidebar {
-        position: absolute;
-        top: 0;
-        left: 0;
-        height: 100%;
-        z-index: 100;
-      }
+      .container { flex-direction: column; }
+      .sidebar { position: absolute; top: 0; left: 0; height: 100%; z-index: 100; }
     }
   </style>
 </head>
 <body>
   <div class="topbar">
-    <div class="top-left">
-      <button class="menu-btn" onclick="toggleSidebar()">☰</button>
-      <h2 id="mainTitle" style="margin-left: 15px;">Wähle eine Kategorie</h2>
+    <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+    <h2 id="mainTitle">Wähle eine Kategorie</h2>
+    <div>
+      <button class="toggle-mode" onclick="toggleDarkMode()">🌙</button>
+      <button class="toggle-mode" onclick="showHelp()">❔</button>
     </div>
-    <button class="toggle-mode" onclick="toggleDarkMode()" title="Modus wechseln">🌙</button>
   </div>
-
   <div class="container">
     <div class="sidebar hidden" id="sidebar">
       <h2>Kategorien</h2>
-      <div id="categoryList">Lade Kategorien...</div>
+      <div id="categoryContainer" class="categories">Lade Kategorien…</div>
     </div>
-
     <div class="main">
-      <div style="height: 15px;"></div> <!-- Abstand zum ersten Satz -->
+      <div style="height:15px;"></div>
       <div id="sentenceList"></div>
     </div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-  <script>
-    const baseURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSjJe2W1HVn2k7ivB1fYfpDBZ9x43pKPDyQ9cxGFnXMs1OjxjtH1Ht7WqkOaTuN1XlBNAhW8f178fu3/pub?output=csv";
+  <div id="helpBox">
+    <strong>طريقة استخدام الموقع:</strong><br><br>
+    1. اختر أولًا قسمًا من القائمة الجانبية، ثم اختر الموضوع الفرعي.<br>
+    2. ستظهر لك جمل باللغة العربية. حاول أن تترجمها إلى الألمانية بنفسك.<br>
+    3. بعد الضغط على الجملة، ستظهر الترجمة الألمانية الفصحى والعامية.<br>
+    4. يمكنك الضغط على زر 🗣️ لتسمع نطق الترجمة.<br>
+    5. استفد من الفصحى لتحسين لغتك، ومن العامية لتعلم التعبير اليومي.<br><br>
+    <button onclick="hideHelp()" style="margin-top:10px; background:#2f2f35; color:white; border:none; padding:6px 12px; border-radius:5px; cursor:pointer;">إغلاق</button>
+  </div>
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<script>
+  const baseURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSjJe2W1HVn2k7ivB1fYfpDBZ9x43pKPDyQ9cxGFnXMs1OjxjtH1Ht7WqkOaTuN1XlBNAhW8f178fu3/pub?output=csv";
 
-    function toggleSidebar() {
-      const sidebar = document.getElementById("sidebar");
-      sidebar.classList.toggle("hidden");
-    }
+  function toggleSidebar() {
+    document.getElementById("sidebar").classList.toggle("hidden");
+  }
 
-    function toggleDarkMode() {
-      document.body.classList.toggle("dark");
-      localStorage.setItem("darkMode", document.body.classList.contains("dark") ? "on" : "off");
-    }
+  function toggleDarkMode() {
+    const isDark = document.body.classList.toggle("dark");
+    localStorage.setItem("darkMode", isDark ? "on" : "off");
+  }
+  if (localStorage.getItem("darkMode") === "on") {
+    document.body.classList.add("dark");
+  }
 
-    // restore dark mode on load
-    if (localStorage.getItem("darkMode") === "on") {
-      document.body.classList.add("dark");
-    }
+  function showHelp() {
+    document.getElementById("helpBox").style.display = "block";
+  }
 
-    function loadCategories() {
-      Papa.parse(baseURL, {
-        download: true,
-        header: true,
-        complete: function(results) {
-          const categories = results.data;
-          const categoryList = document.getElementById("categoryList");
-          categoryList.innerHTML = "";
-          categories.forEach(cat => {
-            if (cat.Name && cat.gid) {
-              const div = document.createElement("div");
-              div.className = "category";
-              div.textContent = cat.Name;
-              div.onclick = () => {
-                loadSentences(cat.Name, cat.gid);
-                document.getElementById("sidebar").classList.add("hidden");
-              };
-              categoryList.appendChild(div);
-            }
+  function hideHelp() {
+    document.getElementById("helpBox").style.display = "none";
+  }
+
+  function loadCategories() {
+    Papa.parse(baseURL, {
+      download: true,
+      header: true,
+      complete(r) {
+        const cats = {};
+        r.data.forEach(row => {
+          if (row.main && row.name && row.gid) {
+            cats[row.main] = cats[row.main] || [];
+            cats[row.main].push({ name: row.name, gid: row.gid });
+          }
+        });
+        const cont = document.getElementById("categoryContainer");
+        cont.innerHTML = "";
+        for (const main in cats) {
+          const h3 = document.createElement("h3");
+          const ico = document.createElement("span"); ico.textContent = "▼";
+          h3.textContent = main; h3.appendChild(ico);
+          const sub = document.createElement("div");
+          sub.className = "subcategories";
+          cats[main].forEach(s => {
+            const d = document.createElement("div");
+            d.className = "subcategory";
+            d.textContent = s.name;
+            d.onclick = () => {
+              loadSentences(s.name, s.gid);
+              toggleSidebar();
+              cont.querySelectorAll('.subcategories').forEach(el => el.style.display = 'none');
+              ico.textContent = "▼";
+            };
+            sub.appendChild(d);
           });
+          h3.onclick = () => {
+            const showing = sub.style.display === "flex";
+            sub.style.display = showing ? "none" : "flex";
+            ico.textContent = showing ? "▼" : "▲";
+          };
+          cont.appendChild(h3);
+          cont.appendChild(sub);
         }
-      });
-    }
+      }
+    });
+  }
 
-    function loadSentences(name, gid) {
-      document.getElementById("mainTitle").textContent = name;
-      const sentenceList = document.getElementById("sentenceList");
-      sentenceList.innerHTML = "Lade Sätze...";
-
-      const sentenceURL = `https://docs.google.com/spreadsheets/d/e/2PACX-1vSjJe2W1HVn2k7ivB1fYfpDBZ9x43pKPDyQ9cxGFnXMs1OjxjtH1Ht7WqkOaTuN1XlBNAhW8f178fu3/pub?gid=${gid}&single=true&output=csv`;
-
-      Papa.parse(sentenceURL, {
-        download: true,
-        header: true,
-        complete: function(results) {
-          const data = results.data;
-          sentenceList.innerHTML = "";
-          data.forEach(row => {
-            if (row.Arabisch) {
-              const div = document.createElement("div");
-              div.className = "sentence";
-              div.innerHTML = `
-                <div class="arabic">${row.Arabisch}</div>
-                <div class="translation">
-                  <div class="translation-line">
-                    <div class="hochdeutsch">${row.Hochdeutsch || ""}</div>
-                    <button class="speak-btn speak-hoch" title="Hochdeutsch vorlesen">🗣️</button>
-                  </div>
-                  <div class="translation-line">
-                    <div class="umgangssprache">${row.Umgangssprache || ""}</div>
-                    <button class="speak-btn speak-umgang" title="Umgangssprache vorlesen">🗣️</button>
-                  </div>
+  function loadSentences(title, gid) {
+    document.getElementById("mainTitle").textContent = title;
+    const sl = document.getElementById("sentenceList");
+    sl.innerHTML = "Lade Sätze…";
+    const url = baseURL.replace("output=csv", "gid=" + gid + "&single=true&output=csv");
+    Papa.parse(url, {
+      download: true,
+      header: true,
+      complete(r) {
+        sl.innerHTML = "";
+        r.data.forEach(row => {
+          if (row.Arabisch) {
+            const div = document.createElement("div");
+            div.className = "sentence";
+            div.innerHTML = `
+              <div class="arabic">${row.Arabisch}</div>
+              <div class="translation">
+                <div class="translation-line">
+                  <div class="hochdeutsch">${row.Hochdeutsch || ""}</div>
+                  <button class="speak-btn speak-hoch" title="Hochdeutsch vorlesen">🗣️</button>
                 </div>
-              `;
+                <div class="translation-line">
+                  <div class="umgangssprache">${row.Umgangssprache || ""}</div>
+                  <button class="speak-btn speak-umgang" title="Umgangssprache vorlesen">🗣️</button>
+                </div>
+              </div>`;
+            div.onclick = () => {
+              const trans = div.querySelector(".translation");
+              trans.style.display = trans.style.display === "none" ? "flex" : "none";
+            };
+            div.querySelector(".speak-hoch").onclick = function (e) {
+              e.stopPropagation();
+              const ut = new SpeechSynthesisUtterance(row.Hochdeutsch || "");
+              ut.lang = "de-DE";
+              window.speechSynthesis.speak(ut);
+            };
+            div.querySelector(".speak-umgang").onclick = function (e) {
+              e.stopPropagation();
+              const ut = new SpeechSynthesisUtterance(row.Umgangssprache || "");
+              ut.lang = "de-DE";
+              window.speechSynthesis.speak(ut);
+            };
+            sl.appendChild(div);
+          }
+        });
+      }
+    });
+  }
 
-              div.addEventListener("click", function(e) {
-                const trans = div.querySelector(".translation");
-                trans.style.display = trans.style.display === "none" ? "flex" : "none";
-              });
-
-              div.querySelector(".speak-hoch").addEventListener("click", function(e) {
-                e.stopPropagation();
-                const text = row.Hochdeutsch || "";
-                const utterance = new SpeechSynthesisUtterance(text);
-                utterance.lang = "de-DE";
-                window.speechSynthesis.speak(utterance);
-              });
-
-              div.querySelector(".speak-umgang").addEventListener("click", function(e) {
-                e.stopPropagation();
-                const text = row.Umgangssprache || "";
-                const utterance = new SpeechSynthesisUtterance(text);
-                utterance.lang = "de-DE";
-                window.speechSynthesis.speak(utterance);
-              });
-
-              sentenceList.appendChild(div);
-            }
-          });
-        }
-      });
-    }
-
-    loadCategories();
-  </script>
+  loadCategories();
+</script>
 </body>
 </html>
