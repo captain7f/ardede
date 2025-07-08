@@ -30,6 +30,8 @@
       padding: 20px;
       box-sizing: border-box;
       transition: transform .3s ease;
+	  height: 100vh;
+	  overflow-y: auto;
     }
     .sidebar.hidden {
       transform: translateX(-100%);
@@ -153,6 +155,10 @@
       .container { flex-direction: column; }
       .sidebar { position: absolute; top: 0; left: 0; height: 100%; z-index: 100; }
     }
+	body.dark #mainTitle {
+	color: #1c1c1c;
+	text-shadow: 0 0 3px rgba(255,255,255,0.3);
+	}
   </style>
 </head>
 <body>
@@ -177,11 +183,11 @@
 
   <div id="helpBox">
     <strong>طريقة استخدام الموقع:</strong><br><br>
-    1. اختر أولًا قسمًا من القائمة الجانبية، ثم اختر الموضوع الفرعي.<br>
-    2. ستظهر لك جمل باللغة العربية. حاول أن تترجمها إلى الألمانية بنفسك.<br>
-    3. بعد الضغط على الجملة، ستظهر الترجمة الألمانية الفصحى والعامية.<br>
-    4. يمكنك الضغط على زر 🗣️ لتسمع نطق الترجمة.<br>
-    5. استفد من الفصحى لتحسين لغتك، ومن العامية لتعلم التعبير اليومي.<br><br>
+    .اختر أولًا قسمًا من القائمة الجانبية، ثم اختر الموضوع الفرعي<br>
+    .ستظهر لك جمل باللغة العربية. حاول أن تترجمها إلى الألمانية بنفسك<br>
+    .بعد الضغط على الجملة، ستظهر الترجمة الألمانية الفصحى والعامية<br>
+    .يمكنك الضغط على زر 🗣️ لتسمع نطق الترجمة<br>
+    .استفد من الفصحى لتحسين لغتك، ومن العامية لتعلم التعبير اليومي<br><br>
     <button onclick="hideHelp()" style="margin-top:10px; background:#2f2f35; color:white; border:none; padding:6px 12px; border-radius:5px; cursor:pointer;">إغلاق</button>
   </div>
 <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
@@ -190,6 +196,7 @@
 
   function toggleSidebar() {
     document.getElementById("sidebar").classList.toggle("hidden");
+	 window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   function toggleDarkMode() {
@@ -300,6 +307,17 @@
       }
     });
   }
+  document.addEventListener("click", function(event) {
+	const sidebar = document.getElementById("sidebar");
+	const menuBtn = document.querySelector(".menu-btn");
+
+	const clickedInsideSidebar = sidebar.contains(event.target);
+	const clickedMenuBtn = menuBtn.contains(event.target);
+
+	if (!clickedInsideSidebar && !clickedMenuBtn && !sidebar.classList.contains("hidden")) {
+		sidebar.classList.add("hidden");
+	}
+  });
 
   loadCategories();
 </script>
