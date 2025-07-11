@@ -72,15 +72,18 @@ body.dark {
 }
 
 .sidebar {
+  
   width: 280px;
   background: #2f2f35;
   color: white;
   padding: 20px;
+  padding-top: 100px; /* يعوض ارتفاع الـ Topbar */
   box-sizing: border-box;
-  height: 100vh;
+  max-height: 90vh;
   overflow-y: auto;
   position: sticky;
   top: 0;
+
 }
 .sidebar h2 {
 	color: #988561;
@@ -89,7 +92,13 @@ body.dark {
 .sidebar.hidden {
   display: none;
 }
+body.sidebar-open {
+  overflow: hidden;
+}
 
+body.sidebar-open .main {
+  pointer-events: none;
+}
 .categories h3 {
   margin-top: 20px;
   cursor: pointer;
@@ -120,6 +129,7 @@ body.dark {
 .main {
   flex-grow: 1;
   padding: 20px;
+  padding-top: 20px;
 }
 
 .sentence {
@@ -223,6 +233,14 @@ body.dark .sentence {
   max-width: 500px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.2);
   border-radius: 10px;
+  direction: rtl;
+  text-align: right;
+}
+
+#helpBox ol {
+  direction: rtl;
+  text-align: right;
+  padding-right: 1.2em;
 }
 
 body.dark #helpBox {
