@@ -9,20 +9,21 @@
 </head>
 <body>
   <div class="topbar">
-    <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+    <button class="menu-btn" onclick="toggleSidebar()" aria-label="Menü">☰</button>
     <h2 id="mainTitle">Wähle eine Kategorie</h2>
     <div>
-      <button class="toggle-mode" onclick="toggleDarkMode()">◐</button>
-      <button class="toggle-mode" onclick="showHelp()">❔</button>
-	  <button class="toggle-mode" id="toggleFavoritesBtn" onclick="toggleFavoritesView(this)">☆</button>
-
+      <button class="toggle-mode" onclick="toggleDarkMode()" title="Dark/Light">◐</button>
+      <button class="toggle-mode" onclick="showHelp()" title="Hilfe">❔</button>
+      <button class="toggle-mode" id="toggleFavoritesBtn" onclick="toggleFavoritesView(this)" title="Favoriten">☆</button>
     </div>
   </div>
+
   <div class="container">
     <div class="sidebar hidden" id="sidebar">
       <h2>Kategorien</h2>
       <div id="categoryContainer" class="categories">Lade Kategorien…</div>
     </div>
+
     <div class="main">
       <div style="height:15px;"></div>
       <div id="sentenceList"></div>
@@ -37,6 +38,14 @@
     4. يمكنك الضغط على زر 🗣️ لتسمع نطق الترجمة.<br>
     5. استفد من الفصحى لتحسين لغتك، ومن العامية لتعلم التعبير اليومي.<br><br>
     <button onclick="hideHelp()">إغلاق</button>
+  </div>
+
+  <!-- شاشة تحميل كاملة تغطي الصفحة (تعمل على الجوال) -->
+  <div id="loaderOverlay" aria-hidden="true">
+    <div class="loader-box">
+      <span class="hourglass">⏳</span>
+      <span>جاري التحميل…</span>
+    </div>
   </div>
 
   <script src="script.js"></script>
