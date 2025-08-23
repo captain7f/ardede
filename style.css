@@ -131,6 +131,8 @@ body.dark .sentence { background: #333; }
   justify-content: space-between;
   gap: 10px;
 }
+
+/* الترجمة */
 .translation {
   margin-top: 10px;
   display: none;
@@ -167,43 +169,56 @@ body.dark .sentence { background: #333; }
 .speak-umgang { background: #e1bee7; }
 .speak-btn:hover { opacity: 0.7; }
 
-/* Favorites */
-.fav-btn {
-  background: none;
-  border: none;
-  font-size: 1.4em;
-  cursor: pointer;
-  color: gray;
-  margin-left: 10px;
-  transition: color 0.3s;
+/* ===== شريط الإجراءات السفلي ===== */
+.card-actions {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 20px;
+  padding-top: 10px;
+  margin-top: 10px;
+  border-top: 1px solid rgba(0,0,0,0.08);
 }
-.fav-btn::before { content: "☆"; }
-.fav-btn.active { color: #b9a779; }
+body.dark .card-actions {
+  border-top: 1px solid rgba(255,255,255,0.12);
+}
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 44px;
+  min-height: 36px;
+  padding: 4px 8px;
+  border-radius: 18px;
+  border: none;
+  background: transparent;
+  color: #666;
+  font-size: 1.05em;
+  cursor: pointer;
+  transition: background .15s, color .2s, transform .06s;
+}
+.action-btn:active { transform: scale(0.98); }
+.action-btn:hover { background: rgba(0,0,0,0.05); }
+body.dark .action-btn:hover { background: rgba(255,255,255,0.08); }
+
+/* المفضلة */
+.fav-btn::before { content: "☆"; font-size: 1.2em; }
+.fav-btn.active { color: #b9892a; }
 .fav-btn.active::before { content: "★"; }
+
+/* العين داخل البطاقة: الرمز نصيًا (◉/◎) */
+.eye-btn { font-size: 1.15em; color: gray; }
+.eye-btn.is-visible { color: #222; }
+.eye-btn.is-hidden  { color: gray; }
+body.dark .eye-btn.is-visible { color: #eee; }
+
+/* زر العين العلوي (3 حالات لون فقط) */
+#toggleHiddenBtn.mode-visible { color: #1e8e3e; }  /* ◉ المرئية فقط */
+#toggleHiddenBtn.mode-hidden  { color: #b71c1c; }  /* ◎ المخفية فقط */
+#toggleHiddenBtn.mode-all     { color: #b4882d; }  /* ◐ الجميع */
+
 #toggleFavoritesBtn.active { color: #ffcc00; }
-
-/* Eye buttons (per sentence + topbar) */
-.eye-btn, #toggleHiddenBtn {
-  background: none;
-  border: none;
-  font-size: 1.35em;
-  cursor: pointer;
-  color: gray;
-  margin-left: 8px;
-  transition: color 0.3s, transform 0.1s;
-}
-.eye-btn:active, #toggleHiddenBtn:active { transform: scale(0.95); }
-
-/* active = مرئية (عين غامقة) / غير مفعّل = مخفية (عين فارغة/باهتة) */
-.eye-btn::before { content: "👁️"; filter: grayscale(1) brightness(0.6); }
-.eye-btn.active { color: #222; }
-body.dark .eye-btn.active { color: #eee; }
-.eye-btn.active::before { content: "👁️"; filter: none; }
-
-/* زر التوب بار الثلاثي */
-#toggleHiddenBtn.mode-visible { color: #1e8e3e; }   /* عرض المرئية فقط */
-#toggleHiddenBtn.mode-hidden  { color: #b71c1c; }   /* عرض المخفية فقط */
-#toggleHiddenBtn.mode-all     { color: #b4882d; }   /* عرض الجميع */
 
 /* Help box */
 #helpBox {
@@ -244,15 +259,15 @@ body.dark #helpBox {
   border-radius: 6px;
 }
 
-/* ===== Fullscreen Loader (Overlay يعمل على الجوال) ===== */
+/* ===== Fullscreen Loader (Overlay) ===== */
 #loaderOverlay {
   position: fixed;
-  inset: 0; /* top/right/bottom/left: 0 */
+  inset: 0;
   background: rgba(0,0,0,0.35);
-  display: none;            /* مخفي افتراضيًا */
+  display: none;
   align-items: center;
   justify-content: center;
-  z-index: 99999;           /* أعلى من الـ topbar */
+  z-index: 99999;
   -webkit-backdrop-filter: blur(1px);
   backdrop-filter: blur(1px);
   padding: env(safe-area-inset-top) env(safe-area-inset-right)
