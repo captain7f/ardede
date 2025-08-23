@@ -182,6 +182,29 @@ body.dark .sentence { background: #333; }
 .fav-btn.active::before { content: "★"; }
 #toggleFavoritesBtn.active { color: #ffcc00; }
 
+/* Eye buttons (per sentence + topbar) */
+.eye-btn, #toggleHiddenBtn {
+  background: none;
+  border: none;
+  font-size: 1.35em;
+  cursor: pointer;
+  color: gray;
+  margin-left: 8px;
+  transition: color 0.3s, transform 0.1s;
+}
+.eye-btn:active, #toggleHiddenBtn:active { transform: scale(0.95); }
+
+/* active = مرئية (عين غامقة) / غير مفعّل = مخفية (عين فارغة/باهتة) */
+.eye-btn::before { content: "👁️"; filter: grayscale(1) brightness(0.6); }
+.eye-btn.active { color: #222; }
+body.dark .eye-btn.active { color: #eee; }
+.eye-btn.active::before { content: "👁️"; filter: none; }
+
+/* زر التوب بار الثلاثي */
+#toggleHiddenBtn.mode-visible { color: #1e8e3e; }   /* عرض المرئية فقط */
+#toggleHiddenBtn.mode-hidden  { color: #b71c1c; }   /* عرض المخفية فقط */
+#toggleHiddenBtn.mode-all     { color: #b4882d; }   /* عرض الجميع */
+
 /* Help box */
 #helpBox {
   display: none;

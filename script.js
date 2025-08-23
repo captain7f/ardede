@@ -3,6 +3,10 @@ let showOnlyFavorites = false;   // عرض المفضلات فقط
 let currentSentences = [];       // السطور الحالية
 let currentCategory = null;      // { name, gid }
 
+// وضع عرض العين في الشريط العلوي: 'visible' | 'hidden' | 'all'
+// الافتراضي: عرض المرئية فقط
+let eyeViewMode = localStorage.getItem("eyeViewMode") || "visible";
+
 // ===== Sidebar toggle =====
 function toggleSidebar() {
   const sidebar = document.getElementById("sidebar");
@@ -55,9 +59,12 @@ function hideLoader() {
 // ===== Speech =====
 function speak(text) {
   if (!text) return;
-  const utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = 'de-DE';
-  speechSynthesis.speak(utterance);
+  try {
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'de-DE';
+    speechSynthesis.cancel(); // أوقف أي نطق سابق لتحسين التجربة
+    speechSynthesis.speak(utterance);
+  } catch (e) {}
 }
 
 // ===== Favorites (global toggle) =====
@@ -85,6 +92,74 @@ function toggleFavorite(id, btn) {
 function isFavorite(id) {
   const favs = JSON.parse(localStorage.getItem("favs") || "[]");
   return favs.includes(id);
+}
+
+// ===== Hidden (per sentence) =====
+function getHiddenList() {
+  return JSON.parse(localStorage.getItem("hidden") || "[]");
+}
+function setHiddenList(arr) {
+  localStorage.setItem("hidden", JSON.stringify(arr));
+}
+function isHidden(id) {
+  const hidden = getHiddenList();
+  return hidden.includes(id);
+}
+function toggleHidden(id, btn, card) {
+  let hidden = getHiddenList();
+  const wasHidden = hidden.includes(id);
+
+  if (wasHidden) {
+    // أصبحت مرئية
+    hidden = hidden.filter(h => h !== id);
+    btn.classList.add("active"); // عين غامقة (مرئية)
+  } else {
+    // أصبحت مخفية
+    hidden.push(id);
+    btn.classList.remove("active"); // عين فارغة (مخفية)
+  }
+  setHiddenList(hidden);
+
+  // إن كنا في وضع "عرض المرئية فقط"، أخفِ البطاقة فورًا عند إخفائها
+  if (!wasHidden && eyeViewMode === "visible" && card) {
+    card.style.display = "none";
+  }
+  // وإن كنا في وضع "عرض المخفية فقط"، أخفِ البطاقة عند إظهارها
+  if (wasHidden && eyeViewMode === "hidden" && card) {
+    card.style.display = "none";
+  }
+}
+
+// ===== Hidden topbar (three-state) =====
+function applyEyeViewButtonVisual() {
+  const btn = document.getElementById("toggleHiddenBtn");
+  if (!btn) return;
+  btn.classList.remove("mode-visible","mode-hidden","mode-all");
+  if (eyeViewMode === "visible") {
+    btn.classList.add("mode-visible");
+    btn.title = "عرض: المرئية فقط";
+    btn.innerText = "👁️";
+  } else if (eyeViewMode === "hidden") {
+    btn.classList.add("mode-hidden");
+    btn.title = "عرض: المخفية فقط";
+    btn.innerText = "👁️";
+  } else {
+    btn.classList.add("mode-all");
+    btn.title = "عرض: الجميع";
+    btn.innerText = "👁️";
+  }
+}
+function cycleHiddenView() {
+  // visible -> hidden -> all -> visible
+  eyeViewMode = eyeViewMode === "visible" ? "hidden" :
+                eyeViewMode === "hidden"  ? "all"     : "visible";
+  localStorage.setItem("eyeViewMode", eyeViewMode);
+  applyEyeViewButtonVisual();
+
+  // أعد التحميل وفق الفلترة الجديدة (بدون انتظار وبدون ساعة رملية)
+  if (currentCategory) {
+    loadSentences(currentCategory.name, currentCategory.gid, null, false, false);
+  }
 }
 
 // ===== Load sentences with 4s minimum wait when needed =====
@@ -127,7 +202,13 @@ function loadSentences(name, gid, lastIndex = null, fromStorage = false, useHour
     currentSentences.forEach((row, index) => {
       const id = `${gid}_${index}`;
       const fav = favs.includes(id);
+      const hidden = isHidden(id);
+
+      // فلترة بحسب زر المفضلة + وضع العين
       if (showOnlyFavorites && !fav) return;
+      if (eyeViewMode === "visible" && hidden) return; // لا نعرض المخفية
+      if (eyeViewMode === "hidden" && !hidden) return; // لا نعرض المرئية
+      // في وضع "all" نعرض الجميع
 
       const card = document.createElement("div");
       card.className = "sentence";
@@ -136,6 +217,7 @@ function loadSentences(name, gid, lastIndex = null, fromStorage = false, useHour
       arabic.className = "arabic";
       arabic.textContent = row.Arabisch || "";
 
+      // زر المفضلة
       const favBtn = document.createElement("button");
       favBtn.className = "fav-btn";
       if (fav) favBtn.classList.add("active");
@@ -144,7 +226,28 @@ function loadSentences(name, gid, lastIndex = null, fromStorage = false, useHour
         toggleFavorite(id, favBtn);
       });
 
-      arabic.appendChild(favBtn);
+      // زر العين (إظهار/إخفاء)
+      const eyeBtn = document.createElement("button");
+      eyeBtn.className = "eye-btn";
+      eyeBtn.title = hidden ? "هذه الجملة مخفية" : "هذه الجملة مرئية";
+      if (!hidden) eyeBtn.classList.add("active"); // عين غامقة = مرئية
+      eyeBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        toggleHidden(id, eyeBtn, card);
+        eyeBtn.title = isHidden(id) ? "هذه الجملة مخفية" : "هذه الجملة مرئية";
+      });
+
+      // تجميع الأزرار بجانب العنوان
+      const actionsWrap = document.createElement("div");
+      actionsWrap.style.display = "flex";
+      actionsWrap.style.alignItems = "center";
+      actionsWrap.style.gap = "6px";
+      actionsWrap.appendChild(favBtn);
+      actionsWrap.appendChild(eyeBtn);
+
+      arabic.style.justifyContent = "space-between";
+      arabic.appendChild(actionsWrap);
+
       card.appendChild(arabic);
 
       const transDiv = document.createElement("div");
@@ -183,7 +286,8 @@ function loadSentences(name, gid, lastIndex = null, fromStorage = false, useHour
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }).catch(() => {
     hideLoader();
-    container.innerHTML = "<div style='text-align:center; padding:20px;'>تعذّر التحميل، حاول مجددًا.</div>";
+    const container = document.getElementById("sentenceList");
+    if (container) container.innerHTML = "<div style='text-align:center; padding:20px;'>تعذّر التحميل، حاول مجددًا.</div>";
   });
 }
 
@@ -244,6 +348,9 @@ function loadCategories() {
 window.onload = function () {
   const lastCat = JSON.parse(localStorage.getItem("lastCategory") || "null");
   const lastIndex = parseInt(localStorage.getItem("lastSentenceIndex"));
+
+  // اضبط مظهر زر العين العلوي بحسب آخر وضع محفوظ
+  applyEyeViewButtonVisual();
 
   loadCategories();
 
