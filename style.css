@@ -32,12 +32,39 @@ body.dark {
   color: #988561;
 }
 .toggle-mode, .menu-btn {
-  background: none;
-  border: none;
-  color: white;
-  font-size: 1.4em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
   margin: 2px;
+  border-radius: 10px;
+  font-size: 1.3em;
   cursor: pointer;
+  transition: background .2s, color .2s, transform .06s;
+  
+  /* الوضع العادي */
+  background: rgba(0,0,0,0.05);
+  border: 1px solid rgba(0,0,0,0.1);
+  color: white;
+}
+.toggle-mode:hover, .menu-btn:hover {
+  background: rgba(0,0,0,0.15);
+}
+.toggle-mode:active, .menu-btn:active {
+  transform: scale(0.95);
+}
+
+/* الوضع الداكن */
+body.dark .toggle-mode, 
+body.dark .menu-btn {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: #eee;
+}
+body.dark .toggle-mode:hover, 
+body.dark .menu-btn:hover {
+  background: rgba(255,255,255,0.15);
 }
 .topbar > div {
   display: flex;
@@ -177,29 +204,37 @@ body.dark .sentence { background: #333; }
   gap: 20px;
   padding-top: 10px;
   margin-top: 10px;
-  border-top: 1px solid rgba(0,0,0,0.08);
+ /* border-top: 1px solid rgba(0,0,0,0.08);*/
 }
 body.dark .card-actions {
-  border-top: 1px solid rgba(255,255,255,0.12);
+  /* border-top: 1px solid rgba(255,255,255,0.12); */
 }
 .action-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  min-width: 44px;
-  min-height: 36px;
-  padding: 4px 8px;
-  border-radius: 18px;
-  border: none;
-  background: transparent;
-  color: #666;
-  font-size: 1.05em;
+  width: 55px;
+  height: 36px;
+  padding: 6px;
+  border-radius: 5px;
+  border: 1px solid rgba(0,0,0,0.1); /* إطار شفاف */
+  background: rgba(0,0,0,0.05);       /* خلفية شفافة */
+  color: #444;
+  font-size: 1.1em;
   cursor: pointer;
-  transition: background .15s, color .2s, transform .06s;
+  transition: background .2s, color .2s, transform .06s;
 }
-.action-btn:active { transform: scale(0.98); }
-.action-btn:hover { background: rgba(0,0,0,0.05); }
+body.dark .action-btn {
+  border: 1px solid rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.05);
+  color: #ccc;
+}
+.action-btn:hover {
+  background: rgba(255,255,255,0.15);
+}
+.action-btn:active {
+  transform: scale(0.95);
+}
 body.dark .action-btn:hover { background: rgba(255,255,255,0.08); }
 
 /* المفضلة */
@@ -209,13 +244,13 @@ body.dark .action-btn:hover { background: rgba(255,255,255,0.08); }
 
 /* العين داخل البطاقة: الرمز نصيًا (◉/◎) */
 .eye-btn { font-size: 1.15em; color: gray; }
-.eye-btn.is-visible { color: #222; }
+.eye-btn.is-visible { color: #b9892a; }
 .eye-btn.is-hidden  { color: gray; }
-body.dark .eye-btn.is-visible { color: #eee; }
+body.dark .eye-btn.is-visible { color: #b9892a; }
 
 /* زر العين العلوي (3 حالات لون فقط) */
-#toggleHiddenBtn.mode-visible { color: #1e8e3e; }  /* ◉ المرئية فقط */
-#toggleHiddenBtn.mode-hidden  { color: #b71c1c; }  /* ◎ المخفية فقط */
+#toggleHiddenBtn.mode-visible { color: #b4882d; }  /* ◉ المرئية فقط */
+#toggleHiddenBtn.mode-hidden  { color: #b4882d; }  /* ◎ المخفية فقط */
 #toggleHiddenBtn.mode-all     { color: #b4882d; }  /* ◐ الجميع */
 
 #toggleFavoritesBtn.active { color: #ffcc00; }
