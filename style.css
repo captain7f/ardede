@@ -95,7 +95,7 @@ body.dark .menu-btn:hover {
   background: #2f2f35;
   color: white;
   padding: 20px;
-  padding-top: 100px; /* يعوض ارتفاع الـ Topbar */
+  padding-top: 120px; /* يعوض ارتفاع الـ Topbar */
   box-sizing: border-box;
   max-height: 90vh;
   overflow-y: auto;
