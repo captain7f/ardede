@@ -1,4 +1,16 @@
-// ===== Global state =====
+"use strict";
+
+/* =======================
+   Google Sheets Konfig
+======================= */
+const FILE_ID = "17xGRFGn3IODc7Xp-6fDHlV1E5gzWD287L5_I-qdg5Kk";
+function getCSVUrl(gid) {
+  return `https://docs.google.com/spreadsheets/d/${FILE_ID}/export?format=csv&gid=${encodeURIComponent(gid)}`;
+}
+
+/* =======================
+   Globaler Zustand
+======================= */
 let showOnlyFavorites = false;   // عرض المفضلات فقط
 let currentSentences = [];       // السطور الحالية
 let currentCategory = null;      // { name, gid }
@@ -6,7 +18,22 @@ let currentCategory = null;      // { name, gid }
 // وضع عرض العين في الشريط العلوي: 'visible' | 'hidden' | 'all'
 let eyeViewMode = localStorage.getItem("eyeViewMode") || "visible"; // الافتراضي: المرئية فقط
 
-// ===== Sidebar toggle =====
+/* =======================
+   Utilities
+======================= */
+function norm(v) {
+  return (v ?? "").toString().replace(/\uFEFF/g, "").trim();
+}
+function safeGet(o, ...keys) {
+  for (const k of keys) {
+    if (o && Object.prototype.hasOwnProperty.call(o, k)) return o[k];
+  }
+  return undefined;
+}
+
+/* =======================
+   Sidebar toggle
+======================= */
 function toggleSidebar() {
   const sidebar = document.getElementById("sidebar");
   const isOpen = sidebar.classList.toggle("hidden");
@@ -30,14 +57,18 @@ document.addEventListener("click", (e) => {
   }
 });
 
-// ===== Dark mode =====
+/* =======================
+   Dark mode
+======================= */
 function toggleDarkMode() {
   document.body.classList.toggle("dark");
   const h2 = document.querySelector(".topbar h2");
   if (h2) h2.style.opacity = document.body.classList.contains("dark") ? "0.9" : "1";
 }
 
-// ===== Help =====
+/* =======================
+   Help
+======================= */
 function showHelp() {
   document.getElementById("helpBox").style.display = "block";
 }
@@ -45,7 +76,9 @@ function hideHelp() {
   document.getElementById("helpBox").style.display = "none";
 }
 
-// ===== Loader overlay =====
+/* =======================
+   Loader overlay
+======================= */
 function showLoader() {
   const o = document.getElementById('loaderOverlay');
   if (o) o.style.display = 'flex';
@@ -55,7 +88,9 @@ function hideLoader() {
   if (o) o.style.display = 'none';
 }
 
-// ===== Speech =====
+/* =======================
+   Speech
+======================= */
 function speak(text) {
   if (!text) return;
   try {
@@ -66,7 +101,9 @@ function speak(text) {
   } catch (e) {}
 }
 
-// ===== Favorites (global toggle) =====
+/* =======================
+   Favorites (global toggle)
+======================= */
 function toggleFavoritesView(btn) {
   showOnlyFavorites = !showOnlyFavorites;
   btn.classList.toggle("active", showOnlyFavorites);
@@ -76,7 +113,9 @@ function toggleFavoritesView(btn) {
   }
 }
 
-// ===== Favorites per sentence =====
+/* =======================
+   Favorites per sentence
+======================= */
 function toggleFavorite(id, btn) {
   let favs = JSON.parse(localStorage.getItem("favs") || "[]");
   if (favs.includes(id)) {
@@ -93,7 +132,9 @@ function isFavorite(id) {
   return favs.includes(id);
 }
 
-// ===== Hidden (per sentence) =====
+/* =======================
+   Hidden (per sentence)
+======================= */
 function getHiddenList() {
   return JSON.parse(localStorage.getItem("hidden") || "[]");
 }
@@ -124,7 +165,9 @@ function toggleHidden(id, btn) {
   btn.classList.toggle("is-visible", !nowHidden);
 }
 
-// ===== Hidden topbar (three-state) =====
+/* =======================
+   Hidden topbar (three-state)
+======================= */
 function applyEyeViewButtonVisual() {
   const btn = document.getElementById("toggleHiddenBtn");
   if (!btn) return;
@@ -160,7 +203,9 @@ function cycleHiddenView() {
   }
 }
 
-// ===== Load sentences with 4s minimum wait when needed =====
+/* =======================
+   Load sentences (4s minimum wait when needed)
+======================= */
 function loadSentences(name, gid, lastIndex = null, fromStorage = false, useHourglass = true) {
   currentCategory = { name, gid };
   if (!fromStorage) localStorage.setItem("lastSentenceIndex", "");
@@ -177,23 +222,36 @@ function loadSentences(name, gid, lastIndex = null, fromStorage = false, useHour
   // مؤقت ٤ ثوانٍ كحدّ أدنى
   const minWait = new Promise(res => setTimeout(res, 4000));
 
-  // تحميل CSV
-  const loadCSV = new Promise((resolve) => {
+  // تحميل CSV (aus FILE_ID/export)
+  const loadCSV = new Promise((resolve, reject) => {
     Papa.parse(
-      `https://docs.google.com/spreadsheets/d/e/2PACX-1vSjJe2W1HVn2k7ivB1fYfpDBZ9x43pKPDyQ9cxGFnXMs1OjxjtH1Ht7WqkOaTuN1XlBNAhW8f178fu3/pub?gid=${gid}&single=true&output=csv`,
+      getCSVUrl(gid),
       {
         download: true,
         header: true,
+        skipEmptyLines: "greedy",
         complete: function (results) {
-          resolve(results.data || []);
-        }
+          if (results && results.errors && results.errors.length) {
+            reject(results.errors[0]);
+          } else {
+            resolve(results.data || []);
+          }
+        },
+        error: function (err) { reject(err); }
       }
     );
   });
 
   // انتظر الملف + ٤ ثوانٍ معًا
   Promise.all([minWait, loadCSV]).then(([, rows]) => {
-    currentSentences = rows;
+    // Spaltennamen robust lesen
+    const normalized = (rows || []).map(r => ({
+      Arabisch:       norm(safeGet(r, "Arabisch", "arabisch", "ARABISCH")),
+      Hochdeutsch:    norm(safeGet(r, "Hochdeutsch", "hochdeutsch", "HOCHDEUTSCH")),
+      Umgangssprache: norm(safeGet(r, "Umgangssprache", "umgangssprache", "Umg"))
+    }));
+
+    currentSentences = normalized;
     const favs = JSON.parse(localStorage.getItem("favs") || "[]");
 
     // بناء البطاقات
@@ -282,28 +340,43 @@ function loadSentences(name, gid, lastIndex = null, fromStorage = false, useHour
 
     hideLoader();
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }).catch(() => {
+  }).catch((err) => {
+    console.error("[loadSentences] CSV error:", err);
     hideLoader();
     const container = document.getElementById("sentenceList");
-    if (container) container.innerHTML = "<div style='text-align:center; padding:20px;'>تعذّر التحميل، حاول مجددًا.</div>";
+    if (container) container.innerHTML = "<div style='text-align:center; padding:20px;'>تعذّر التحميل (CSV). تحقّق من الصلاحيات/الإنترنت وحاول مجددًا.</div>";
   });
 }
 
-// ===== Load categories =====
+/* =======================
+   Load categories (gid=0)
+======================= */
 function loadCategories() {
   Papa.parse(
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vSjJe2W1HVn2k7ivB1fYfpDBZ9x43pKPDyQ9cxGFnXMs1OjxjtH1Ht7WqkOaTuN1XlBNAhW8f178fu3/pub?gid=0&single=true&output=csv",
+    getCSVUrl(0), // Kategorien-Tab = gid=0 (wie von dir angegeben)
     {
       download: true,
       header: true,
+      skipEmptyLines: "greedy",
       complete: function (results) {
         const container = document.getElementById("categoryContainer");
         container.innerHTML = "";
         const grouped = {};
 
+        // Header robust lesen
+        const rows = (results.data || []).map(r => ({
+          main: norm(safeGet(r, "main", "\ufeffmain", " main")),
+          name: norm(safeGet(r, "name", " Name")),
+          gid:  norm(safeGet(r, "gid", " Gid"))
+        })).filter(r => r.main && r.name && r.gid);
+
+        if (!rows.length) {
+          container.textContent = "Keine Kategorien gefunden. Prüfe Spalten: main, name, gid.";
+          return;
+        }
+
         // group by main
-        (results.data || []).forEach(row => {
-          if (!row || !row.main) return;
+        rows.forEach(row => {
           if (!grouped[row.main]) grouped[row.main] = [];
           grouped[row.main].push(row);
         });
@@ -342,7 +415,9 @@ function loadCategories() {
   );
 }
 
-// ===== Boot =====
+/* =======================
+   Boot
+======================= */
 window.onload = function () {
   const lastCat = JSON.parse(localStorage.getItem("lastCategory") || "null");
   const lastIndex = parseInt(localStorage.getItem("lastSentenceIndex"));
@@ -357,3 +432,14 @@ window.onload = function () {
     loadSentences(lastCat.name, lastCat.gid, isNaN(lastIndex) ? null : lastIndex, true, false);
   }
 };
+
+/* =======================
+   Expose globale Funktionen
+======================= */
+window.toggleSidebar = toggleSidebar;
+window.toggleDarkMode = toggleDarkMode;
+window.showHelp = showHelp;
+window.hideHelp = hideHelp;
+window.speak = speak;
+window.toggleFavoritesView = toggleFavoritesView;
+window.cycleHiddenView = cycleHiddenView;
